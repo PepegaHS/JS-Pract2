@@ -1,116 +1,193 @@
-const operation = {
-id: number,
-title: string,
-amount: number,
-category: string
-}
 
-let expenses = []
+// const operation = {
+// id: 0,
+// title: "",
+// amount: 0,
+// category: ""
+// }
 
-// 1. Добавление расхода
-function addExpense(title, amount, category) {
-const newExpense = {
-    title: title,
-    amount: amount,
-    category: category
-}
-expenses.push(newExpense)
-}
+let currentId = 1
 
-// 2. Вывод всех расходов
-function printAllExpenses() {
-console.log("Все расходы:")
-expenses.forEach((expense, index) => {
-    console.log(`${index + 1}. ${expense.title} - ${expense.amount} руб. (${expense.category})`)
-})
-}
+const expenseTracker = {
 
-// 3. Подсчёт общего баланса
-function getTotalAmount() {
-const total = expenses.reduce((sum, expense) => sum + expense.amount, 0)
-console.log(`Общий баланс: ${total} руб.`)
-}
+    expenses1: [],
+    expenses2: [],
+    currentExpenses: "expenses1", // имя активного массива (свойства)
 
-// 4. Фильтрация по категории
-function filterByCategory(category) {
-    if (!category) {
-        console.log("Ошибка: Категория не указана")
-        return
-    }
-    
-    const filteredExpenses = expenses.filter(expense => expense.category === category)
-    
-    if (filteredExpenses.length === 0) {
-        console.log(`Расходы по категории "${category}" не найдены`)
-        return
-    }
-    
-    console.log(`Расходы по категории "${category}":`)
-    filteredExpenses.forEach((expense, index) => {
-        console.log(`${index + 1}. ${expense.title} - ${expense.amount} руб.`)
-    })
-}
+    getActiveArray() {
+        return this[this.currentExpenses]
+    },
 
-// 5. Поиск расхода
-function findExpenseByTitle(title) {
-const foundExpense = expenses.find(expense => expense.title === title)
-if (foundExpense) {
-    console.log(`Найден расход: ${foundExpense.title} - ${foundExpense.amount} руб. (${foundExpense.category})`)
-} else {
-    console.log(`Расход с названием "${title}" не найден`)
-}
-}
-
-//7.1 метод удаления расхода по id
-function deleteExpense(id) {
-const index = expenses.findIndex(expense => expense.id === id)
-if (index !== -1) {
-    expenses.splice(index, 1)
-    console.log(`Расход с id ${id} удалён`)
-} else {
-    console.log(`Расход с id ${id} не найден`)
-}
-}
-
-//7.2 Вывод статистики по категориям
-function getCategoryStatistics() {
-    const categoryStats = expenses.reduce((stats, expense) => {
-        if (!stats[expense.category]) {
-        stats[expense.category] = 0
+    switchExpenseArray() {
+        if (this.currentExpenses === "expenses1") {
+            this.currentExpenses = "expenses2"
+            console.log("Переключено на массив расходов 2")
+        } else {
+            this.currentExpenses = "expenses1"
+            console.log("Переключено на массив расходов 1")
         }
-        stats[expense.category] += expense.amount
-        return stats
+    }, 
+
+    addExpense() {
+        const title = prompt("Введите название расхода:")
+        const amount = parseFloat(prompt("Введите сумму расхода:"))
+        const category = prompt("Введите категорию расхода:")
+
+        if (isNaN(amount) || amount <= 0 || !title || !category) {
+            console.log("Ошибка: некорректные данные")
+            return
+        }
+
+        const newExpense = {
+            id: currentId++,
+            title,
+            amount,
+            category
+        }
+
+        this.getActiveArray().push(newExpense)
+    },
+
+    printAllExpenses() {
+        const expenses = this.getActiveArray()
+
+        if (expenses.length === 0) {
+            console.log("Список пуст")
+            return
+        }
+
+        expenses.forEach((expense, index) => {
+            console.log(`${index + 1}. ${expense.title} - ${expense.amount} руб. (${expense.category})`)
+        })
+    },
+
+    getTotalAmount() {
+        const expenses = this.getActiveArray()
+
+        const total = expenses.reduce((sum, expense) => sum + expense.amount, 0)
+        console.log(`Общий баланс: ${total} руб.`)
+    },
+
+    filterByCategory() {
+    const category = prompt("Введите категорию:")
+    const expenses = this.getActiveArray()
+
+    const filtered = expenses.filter(e => e.category === category)
+
+    if (filtered.length === 0) {
+        console.log("Ничего не найдено")
+        return
     }
-    , {})
-    console.log("Статистика по категориям:")
-    for (const category in categoryStats) {
-        console.log(`${category}: ${categoryStats[category]} руб.`)
+
+    filtered.forEach((e, i) => {
+        console.log(`${i + 1}. ${e.title} - ${e.amount}`)
+    })
+    },
+
+    findExpenseByTitle() {
+    const title = prompt("Введите название:")
+    const expenses = this.getActiveArray()
+
+    const found = expenses.find(e => e.title === title)
+
+    if (!found) {
+        console.log("Не найдено")
+        return
+    }
+
+    console.log(`${found.title} - ${found.amount} руб.`)
+    },
+
+    deleteExpense() {
+    const id = parseInt(prompt("Введите id:"))
+    const expenses = this.getActiveArray()
+
+    const index = expenses.findIndex(e => e.id === id)
+
+    if (index === -1) {
+        console.log("Не найдено")
+        return
+    }
+
+    expenses.splice(index, 1)
+    console.log("Удалено")
+    },
+
+    getCategoryStatistics() {
+    const expenses = this.getActiveArray()
+
+    const stats = expenses.reduce((acc, e) => {
+        acc[e.category] = (acc[e.category] || 0) + e.amount
+        return acc
+    }, {})
+
+    for (const category in stats) {
+        console.log(`${category}: ${stats[category]} руб.`)
     }
 }
 
+}
 
+    function main() {
+        console.log("Выбор действия")
 
-// 6. Объект управления приложением
-    const expenseTracker = 
-    {
-    expenses: [],
-    addExpense,
-    getTotalAmount,
-    filterByCategory,
-    findExpenseByTitle,
-    deleteExpense,
-    getCategoryStatistics
-    }
+            let choice = prompt("Выберите действие:\n"+
+            "1 - Добавить расход,\n" +
+            "2 - Показать все расходы,\n"+
+            "3 - Показать общий баланс,\n"+
+            "4 - Фильтровать по категории,\n"+
+            "5 - Найти расход по названию,\n"+
+            "6 - Удалить расход по id,\n"+
+            "7 - Показать статистику по категориям,\n"+
+            "8 - Переключить массив расходов,\n"+
+            "0 - Выйти.")
+            while (choice !== "0") 
+            {
+                switch (choice) {
+                    case "1": // Добавление расхода
+                        expenseTracker.addExpense()
+                        break
 
+                    case "2": // Показать все расходы
+                        expenseTracker.printAllExpenses()
+                        break
 
-// Пример использования
+                    case "3": // Показать общий баланс                   
+                        expenseTracker.getTotalAmount()
+                        break
 
-expenseTracker.addExpense("Покупка продуктов", 1500, "Еда")
-expenseTracker.addExpense("Оплата интернета", 500, "Коммунальные услуги")
-expenseTracker.addExpense("Кофе", 200, "Развлечения")
-expenseTracker.printAllExpenses()
-expenseTracker.getTotalAmount()
-expenseTracker.filterByCategory("Еда")
-expenseTracker.findExpenseByTitle("Кофе")
-expenseTracker.deleteExpense(1)
-expenseTracker.getCategoryStatistics()
+                    case "4": // Фильтровать по категории
+                        expenseTracker.filterByCategory()
+                        break
+
+                    case "5": // Найти расход по названию
+                        expenseTracker.findExpenseByTitle()
+                        break
+
+                    case "6": // Удалить расход по id
+                        expenseTracker.deleteExpense()
+                        break
+
+                    case "7": // Показать статистику по категориям
+                        expenseTracker.getCategoryStatistics()
+                        break
+
+                    case "8": // переключение массивов
+                        expenseTracker.switchExpenseArray()
+                        break
+                    default:
+                        console.log("Неверный выбор. Пожалуйста, попробуйте снова.")
+                    }   
+                choice = prompt("Выберите действие: \n"+
+                "1 - Добавить расход,\n" +
+                "2 - Показать все расходы,\n"+
+                "3 - Показать общий баланс,\n "+
+                "4 - Фильтровать по категории,\n "+
+                "5 - Найти расход по названию,\n "+
+                "6 - Удалить расход по id, \n"+
+                "7 - Показать статистику по категориям, \n"+
+                "8 - Переключить массив расходов, \n"+
+                "0 - Выйти.")
+            }
+    }  
+main()
